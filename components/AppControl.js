@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import config from './../config.js';
+import MovieShuffle from './MovieShuffle.js';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -20,9 +21,11 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 export default class AppControl extends React.Component {
   constructor(props) {
     super(props);
+    this.position = new Animated.ValueXY();
     this.state = {
       currentIndex: 0,
       loading: true,
+      haveData: false,
       apiData: null,
       buttonView: false,
       currentMovie: {
@@ -36,11 +39,36 @@ export default class AppControl extends React.Component {
     };
   }
 
+  UNSAFE_componentWillMount() {
+    this.PanResponder = PanResponder.create({
+
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onPanResponderMove: (evt, gestureState) => {
+
+        this.position.setValue({ x: gestureState.dx, y: gestureState.dy })
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+
+      }
+    })
+  }
+
 
   timerLoad = () => {
     setTimeout(() => {
       this.setState({ loading: false });
     }, 2000);
+  }
+
+  handleApiRun = () => {
+    const newMovies = MovieShuffle(this.state.apiData.results);
+    const num = parseInt(this.state.currentIndex);
+    console.log(newMovies);
+    this.setState({
+      apiData: newMovies,
+      haveData: true,
+      currentMovie: newMovies[num],
+    })
   }
 
   goForAxios = () => {
@@ -64,18 +92,24 @@ export default class AppControl extends React.Component {
               apiData: response.data,
               buttonView: true,
           })
-          this.getMovie;
-      }, 2000)
-    })
-    .catch(error => {
-      console.log(error);
-    });
+        }, 2000)
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   getMovie = () => {
-    const num = Math.floor(Math.random() * this.state.apiData.results.length);
+    let num;
+    
+    if (this.state.currentIndex === (this.state.apiData.length-1)) {
+      num = 0;
+    } else {
+      num = parseInt(this.state.currentIndex+1);
+    }
     this.setState({
-      currentMovie: this.state.apiData.results[num],
+      currentMovie: this.state.apiData[num],
+      currentIndex: num,
     })
   }
 
@@ -83,14 +117,20 @@ export default class AppControl extends React.Component {
     let currentButton;
     if (this.state.buttonView) {
       currentButton = <Button onPress={this.getMovie} title={"Change Movie!"} />
+      //console.log("Movie Change!");
     } else {
       currentButton = <Button onPress={this.goForAxios} title={"SEARCH!"} />
-      console.log("Searched!");
+      //console.log("Searched!");
     }
+
+    if(this.state.haveData === false && this.state.apiData != null) {
+      this.handleApiRun();
+    }
+
     if (this.state.loading) {
       return (
         <SafeAreaView style={styles.container}>
-          <Text style={styles.subTitle}>Welcome to Cine-Swipe!</Text>
+          <Text style={styles.subTitle}>Welcome to CineSwipe!</Text>
           <Text style={styles.subTitle}>Loading......</Text>
           {this.timerLoad()}
         </SafeAreaView>
@@ -106,7 +146,8 @@ export default class AppControl extends React.Component {
 
             <View style={{flex:1}}>
               <Animated.View 
-              style={styles.main}>
+              {...this.PanResponder.panHandlers}
+              style={[{ transform: this.position.getTranslateTransform() }, styles.main]}>
                 <Image style={styles.mainImage} 
                 source={{uri: `${this.state.currentMovie.posterURLs.original}`}} />
               </Animated.View>

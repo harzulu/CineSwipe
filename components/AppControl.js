@@ -4,19 +4,24 @@ import {
   Text, 
   View, 
   SafeAreaView, 
-  TouchableOpacity,
   Image, 
   Button,
-  TouchableWithoutFeedback,
-  ImageBackground
+  ImageBackground,
+  Dimensions,
+  Animated,
+  PanResponder,
 } from 'react-native';
 import axios from 'axios';
 import config from './../config.js';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default class AppControl extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      currentIndex: 0,
       loading: true,
       apiData: null,
       buttonView: false,
@@ -30,6 +35,7 @@ export default class AppControl extends React.Component {
       },
     };
   }
+
 
   timerLoad = () => {
     setTimeout(() => {
@@ -92,15 +98,24 @@ export default class AppControl extends React.Component {
     } else {
       return (
         <SafeAreaView style={styles.container}>
-          <ImageBackground source={{uri: `${this.state.currentMovie.posterURLs.original}`}} style={styles.main}>
+
             <View style={styles.titleBox}>
               <Text style={styles.title}>{this.state.currentMovie.title}</Text>
               <Text style={styles.subTitle}>{this.state.currentMovie.year}</Text>
             </View>
+
+            <View style={{flex:1}}>
+              <Animated.View 
+              style={styles.main}>
+                <Image style={styles.mainImage} 
+                source={{uri: `${this.state.currentMovie.posterURLs.original}`}} />
+              </Animated.View>
+            </View>
+
             <View style={styles.infoBox}>
               {currentButton}
             </View>
-          </ImageBackground>
+
         </SafeAreaView>
       )
     }
@@ -115,13 +130,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   main: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 300,
-    height: 500,
-    borderRadius: 0,
-    borderColor: 'black',
-    borderWidth: 2,
+    flex: 1,
+    width: (SCREEN_WIDTH - 20),
+    height: (SCREEN_HEIGHT - 150),
+    padding: 10,
   },
   text: {
     height: 40,
@@ -131,13 +143,13 @@ const styles = StyleSheet.create({
   infoBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 390,
-    height: 150,
-    borderRadius: 60,
+    width: 410,
+    height: 50,
+    borderRadius: 20,
     backgroundColor: 'white',
     borderWidth: 2,
     borderColor: 'black',
-    marginTop: 240,
+    marginBottom: 5,
   },
   title: {
     fontSize: 50,
@@ -155,12 +167,18 @@ const styles = StyleSheet.create({
   titleBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 390,
+    width: 410,
     height: 100,
-    borderRadius: 60,
+    borderRadius: 20,
     backgroundColor: 'black',
     borderWidth: 2,
     borderColor: 'white',
-    marginBottom: 200,
+  },
+  mainImage: {
+    flex: 1,
+    height: null,
+    width: null,
+    resizeMode: 'cover',
+    borderRadius: 20
   }
 });

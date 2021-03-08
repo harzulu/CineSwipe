@@ -1,4 +1,10 @@
 import React from 'react';
+import axios from 'axios';
+import config from './../config.js';
+import MovieShuffle from './MovieShuffle.js';
+import DescriptionBox from './DescriptionBox.js';
+import TitleBox from './TitleBox.js';
+
 import { 
   StyleSheet, 
   Text, 
@@ -11,9 +17,6 @@ import {
   Animated,
   PanResponder,
 } from 'react-native';
-import axios from 'axios';
-import config from './../config.js';
-import MovieShuffle from './MovieShuffle.js';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -21,53 +24,47 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 export default class AppControl extends React.Component {
   constructor(props) {
     super(props);
+    //FOR ANIMATION
     this.position = new Animated.ValueXY();
+    //FOR APP_CONTROL
     this.state = {
       currentIndex: 0,
       loading: true,
+      buttonView: false,
       haveData: false,
       apiData: null,
-      buttonView: false,
+      moviePictures: [],
       currentMovie: {
-        posterURLs: {original: 'https://picsum.photos/400/700'},
         title: "N/A",
         type: "movie",
         year: "2021",
         imdbID: "ff0000000",
         imdbRating: "0",
+        overview: "NONE",
       },
     };
-  }
-
-  UNSAFE_componentWillMount() {
-    this.PanResponder = PanResponder.create({
-
-      onStartShouldSetPanResponder: (evt, gestureState) => true,
-      onPanResponderMove: (evt, gestureState) => {
-
-        this.position.setValue({ x: gestureState.dx, y: gestureState.dy })
-      },
-      onPanResponderRelease: (evt, gestureState) => {
-
-      }
-    })
-  }
-
-
+  }  
+//LOADING SCREEN
   timerLoad = () => {
     setTimeout(() => {
       this.setState({ loading: false });
     }, 2000);
+    console.log("LOADED");
   }
-
+//API METHODS
   handleApiRun = () => {
     const newMovies = MovieShuffle(this.state.apiData.results);
     const num = parseInt(this.state.currentIndex);
-    console.log(newMovies);
+    console.log("SHUFFLED MOVIES");
+    let pictures = []
+    for (let i = 0; i < newMovies.length; i++ ) {
+      pictures.push({id: i, picture: newMovies[i].posterURLs.original})
+    }
     this.setState({
       apiData: newMovies,
       haveData: true,
       currentMovie: newMovies[num],
+      moviePictures: pictures,
     })
   }
 
@@ -86,7 +83,7 @@ export default class AppControl extends React.Component {
       }
     })
     .then(response => {
-      console.log('getting data from axios', response.data);
+      console.log('GETTING DATA FROM AXIOS');
       setTimeout(() => {
           this.setState({
               apiData: response.data,
@@ -98,10 +95,10 @@ export default class AppControl extends React.Component {
         console.log(error);
       });
   }
-
+//CHANGE CURRENT MOVIE
   getMovie = () => {
     let num;
-    
+
     if (this.state.currentIndex === (this.state.apiData.length-1)) {
       num = 0;
     } else {
@@ -113,18 +110,29 @@ export default class AppControl extends React.Component {
     })
   }
 
-  render() {
-    let currentButton;
-    if (this.state.buttonView) {
-      currentButton = <Button onPress={this.getMovie} title={"Change Movie!"} />
-      //console.log("Movie Change!");
-    } else {
-      currentButton = <Button onPress={this.goForAxios} title={"SEARCH!"} />
-      //console.log("Searched!");
-    }
+//ANIMATION METHODS
+  UNSAFE_componentWillMount() {
+    this.PanResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onPanResponderMove: (evt, gestureState) => {
+        this.position.setValue({ x: gestureState.dx, y: gestureState.dy })
+      },
+      onPanResponderRelease: (evt, gestureState) => {
 
+      }
+    })
+  }
+
+  render() {
     if(this.state.haveData === false && this.state.apiData != null) {
       this.handleApiRun();
+    }
+
+    let picture;
+    if (this.state.moviePictures.length === 0) {
+      picture = 'https://picsum.photos/400/700';
+    } else {
+      picture = this.state.moviePictures[this.state.currentIndex].picture;
     }
 
     if (this.state.loading) {
@@ -139,23 +147,20 @@ export default class AppControl extends React.Component {
       return (
         <SafeAreaView style={styles.container}>
 
-            <View style={styles.titleBox}>
-              <Text style={styles.title}>{this.state.currentMovie.title}</Text>
-              <Text style={styles.subTitle}>{this.state.currentMovie.year}</Text>
-            </View>
+            <TitleBox currentMovie={this.state.currentMovie}/>
 
+            {/*ANIMATION CARD*/}
             <View style={{flex:1}}>
               <Animated.View 
               {...this.PanResponder.panHandlers}
               style={[{ transform: this.position.getTranslateTransform() }, styles.main]}>
                 <Image style={styles.mainImage} 
-                source={{uri: `${this.state.currentMovie.posterURLs.original}`}} />
+                source={{uri: `${picture}`}} />
               </Animated.View>
             </View>
+            {/*ANIMATION CARD*/}
 
-            <View style={styles.infoBox}>
-              {currentButton}
-            </View>
+            <DescriptionBox apiCall={() => this.goForAxios()} changeMovie={() => this.getMovie()} description={this.state.currentMovie.overview}/>
 
         </SafeAreaView>
       )
@@ -170,50 +175,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  main: {
-    flex: 1,
-    width: (SCREEN_WIDTH - 20),
-    height: (SCREEN_HEIGHT - 150),
-    padding: 10,
-  },
   text: {
     height: 40,
     fontSize: 20,
     fontFamily: 'Courier'
   },
-  infoBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 410,
-    height: 50,
-    borderRadius: 20,
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: 'black',
-    marginBottom: 5,
-  },
-  title: {
-    fontSize: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-  },
-  subTitle: {
-    fontSize: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-    marginTop: 5,
-  },
-  titleBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 410,
-    height: 100,
-    borderRadius: 20,
-    backgroundColor: 'black',
-    borderWidth: 2,
-    borderColor: 'white',
+  main: {
+    flex: 1,
+    width: (SCREEN_WIDTH - 20),
+    height: (SCREEN_HEIGHT - 150),
+    padding: 10,
   },
   mainImage: {
     flex: 1,

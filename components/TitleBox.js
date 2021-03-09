@@ -2,10 +2,14 @@ import React from 'react';
 import { 
   StyleSheet, 
   Text,
-  View
+  View,
+  Dimensions,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import DescriptionBox from './DescriptionBox';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function TitleBox(props) {
   return (
@@ -22,7 +26,7 @@ DescriptionBox.propTypes = {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 35,
+    fontSize: 30,
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
@@ -39,11 +43,13 @@ const styles = StyleSheet.create({
   titleBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 414,
-    height: 110,
-    borderRadius: 20,
+    width: (SCREEN_WIDTH - 20),
+    height: 100,
     backgroundColor: 'black',
     borderWidth: 2,
     borderColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 5,
   },
 })

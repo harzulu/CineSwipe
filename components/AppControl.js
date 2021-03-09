@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import config from './../config.js';
-import MovieShuffle from './MovieShuffle.js';
 import DescriptionBox from './DescriptionBox.js';
 import TitleBox from './TitleBox.js';
 import FlipCard from 'react-native-flip-card'
@@ -17,10 +16,12 @@ import {
   Dimensions,
   Animated,
   PanResponder,
+  TouchableOpacity,
 } from 'react-native';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default class AppControl extends React.Component {
   constructor(props) {
@@ -95,12 +96,20 @@ export default class AppControl extends React.Component {
   }
 
   handleApiRun = () => {
-    const newMovies = MovieShuffle(this.state.apiData.results);
-    console.log("SHUFFLED MOVIES");
+    //Shuffle Movies
+    const { apiData } = this.state
+    let newMovies = [];
     let pictures = []
-    for (let i = 0; i < newMovies.length; i++ ) {
-      pictures.push({id: i, picture: newMovies[i].posterURLs.original})
+    for (let i = 0; i < apiData.results.length; i++) {
+      const num = Math.floor(Math.random() * (apiData.results.length));
+      if (newMovies.includes(apiData.results[num])) {
+        i--;
+      } else {
+        newMovies.push(apiData.results[num]);
+        pictures.push({id: i, picture: apiData.results[num].posterURLs.original})
+      }
     }
+    console.log("SHUFFLED MOVIES");
     this.setState({
       apiData: newMovies,
       haveData: true,
@@ -115,7 +124,8 @@ export default class AppControl extends React.Component {
     // const service = "hulu"
     // const type = "movie"
     // const genre = "18"
-    // const page = "54"// 1 through 150
+    const page = Math.floor(Math.random() * 150);// 1 through 150
+    console.log("Page number" + page);
 
     console.log('GETTING DATA FROM AXIOS');
       setTimeout(() => {
@@ -180,6 +190,7 @@ export default class AppControl extends React.Component {
             this.setState({ currentIndex: this.state.currentIndex + 1, }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
+            console.log("Movie Liked!");
             this.getMovie();
           })
         }
@@ -191,6 +202,7 @@ export default class AppControl extends React.Component {
             this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
+            console.log("Movie Disliked!");
             this.getMovie();
           })
         }
@@ -237,8 +249,13 @@ export default class AppControl extends React.Component {
         flip={false}>
 
           {/* Face Side */}
-          <Image style={styles.mainImage} 
-          source={{uri: `${imageUrl}`}} />
+          <View style={styles.mainCard}>
+            <TitleBox currentMovie={this.state.currentMovie}/>
+            
+              <Image style={styles.mainImage} 
+              source={{uri: `${imageUrl}`}} />
+            
+          </View>
 
           {/* Back Side */}
           <DescriptionBox apiCall={() => this.goForAxios()} currentMovie={this.state.currentMovie}/>
@@ -267,13 +284,28 @@ export default class AppControl extends React.Component {
       return (
         <SafeAreaView style={styles.container}>
 
-            <TitleBox currentMovie={this.state.currentMovie}/>
+            {/* <TitleBox currentMovie={this.state.currentMovie}/> */}
 
             {/*ANIMATION CARD*/}
             <View style={{flex:1}}>
               {this.renderPictures()}
             </View>
             {/*ANIMATION CARD*/}
+            
+              <View style={styles.buttonsRow}>
+                <AnimatedTouchable style={styles.buttons} onPress={() => alert("YOU PRESSED IT!")}>
+                  <Image style={styles.buttonImage} source={require('./../assets/filmLogo.png')} />
+                </AnimatedTouchable>
+
+                <AnimatedTouchable style={styles.buttons} onPress={() => alert("YOU PRESSED IT!")}>
+                  <Image style={styles.buttonImage} source={require('./../assets/searchLogo.png')} />
+                </AnimatedTouchable>
+
+                <AnimatedTouchable style={styles.buttons} onPress={() => alert("YOU PRESSED IT!")}>
+                  <Image style={styles.buttonImage} source={require('./../assets/profileLogo.png')} />
+                </AnimatedTouchable>
+              </View>
+            
         </SafeAreaView>
       )
     }
@@ -312,7 +344,7 @@ const styles = StyleSheet.create({
   },
   main: {
     width: (SCREEN_WIDTH),
-    height: (SCREEN_HEIGHT - 130),
+    height: (SCREEN_HEIGHT - 90),
     padding: 10,
     position: 'absolute',
   },
@@ -321,7 +353,24 @@ const styles = StyleSheet.create({
     height: null,
     width: null,
     resizeMode: 'cover',
-    borderRadius: 20
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  mainCard: {
+    flex: 1,
+    height: null,
+    width: null,
+    resizeMode: 'cover',
+    borderRadius: 20,
+    backgroundColor: 'black',
+    shadowColor: "#FAF198",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.57,
+    shadowRadius: 15,
+    elevation: 13,
   },
   likeText: {
     borderWidth: 1, 
@@ -330,5 +379,40 @@ const styles = StyleSheet.create({
     fontSize: 32, 
     fontWeight: '800', 
     padding: 10
+  },
+  buttonsRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    position: 'absolute', 
+    bottom: 0
+  },
+  buttons: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 60,
+    width: 60,
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 2,
+    borderRadius: 70,
+    marginLeft: 39,
+    marginRight: 39,
+    marginBottom: 10,
+    // shadowColor: "white",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 11,
+    // },
+    // shadowOpacity: 0.57,
+    // shadowRadius: 15.19,
+    // elevation: 23,
+  },
+  buttonImage: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 50,
+    width: 50,
+    borderRadius: 70,
   },
 });

@@ -1,15 +1,13 @@
 export default function MovieShuffle(array) {
-  let currI = array.length, tempVal, randI;
-
-  while (0 !== currI) {
-
-    randI = Math.floor(Math.random() * currI);
-    currI -= 1;
-
-    tempVal = array[currI];
-    array[currI] = array[randI];
-    array[randI] = tempVal;
+  let newArray = [];
+  console.log(array);
+  for (let i = 0; i < array.length; i++) {
+    const num = Math.floor(Math.random() * (array.length));
+    if (newArray.includes(array[num])) {
+      i--;
+    } else {
+      newArray.push(array[num]);
+    }
   }
-
-  return array;
+  return newArray;
 }

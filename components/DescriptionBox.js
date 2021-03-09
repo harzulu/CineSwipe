@@ -48,7 +48,8 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   text: {
-    height: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
     fontSize: 10,
     fontFamily: 'Courier',
     color: 'black',

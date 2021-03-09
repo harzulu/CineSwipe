@@ -89,6 +89,10 @@ export default class AppControl extends React.Component {
     console.log("LOADED");
   }
 //API METHODS
+  componentDidMount() {
+    this.goForAxios();
+  }
+
   handleApiRun = () => {
     const newMovies = MovieShuffle(this.state.apiData.results);
     console.log("SHUFFLED MOVIES");
@@ -107,7 +111,7 @@ export default class AppControl extends React.Component {
 
   goForAxios = () => {
     console.log("SUPER Searched!");
-    const service = "netflix"
+    const service = "hulu"
     const type = "movie"
     const genre = "18"
 

@@ -3,7 +3,10 @@ import axios from 'axios';
 import config from './../config.js';
 import DescriptionBox from './DescriptionBox.js';
 import TitleBox from './TitleBox.js';
-import FlipCard from 'react-native-flip-card'
+import FlipCard from 'react-native-flip-card';
+import FilmList from './FilmList.js';
+import Search from './Search.js';
+import Profile from './Profile.js';
 
 import { 
   StyleSheet, 
@@ -67,7 +70,7 @@ export default class AppControl extends React.Component {
     //FOR APP_CONTROL
     this.state = {
       currentIndex: 0,
-      loading: true,
+      currentPage: 'LOAD',
       buttonView: false,
       haveData: false,
       apiData: null,
@@ -86,7 +89,7 @@ export default class AppControl extends React.Component {
 //LOADING SCREEN
   timerLoad = () => {
     setTimeout(() => {
-      this.setState({ loading: false });
+      this.setState({ currentPage: 'MAIN' });
     }, 2000);
     console.log("LOADED");
   }
@@ -174,6 +177,10 @@ export default class AppControl extends React.Component {
     }
   }
 
+  handleNewSearch = () => {
+
+  }
+
 //ANIMATION METHODS
   UNSAFE_componentWillMount() {
     this.PanResponder = PanResponder.create({
@@ -191,6 +198,11 @@ export default class AppControl extends React.Component {
               this.position.setValue({ x: 0, y: 0 })
             })
             console.log("Movie Liked!");
+            let { likedMovies } = this.state;
+            likedMovies.push(this.state.currentMovie);
+            this.setState({
+              likedMovies: likedMovies,
+            });
             this.getMovie();
           })
         }
@@ -266,12 +278,47 @@ export default class AppControl extends React.Component {
     )
   }
 
+//CHANGE PAGES
+  handleChangeToProfile = () => {
+    this.setState({
+      currentPage: 'PROFILE',
+    });
+  }
+
+  handleChangeToSearch = () => {
+    this.setState({
+      currentPage: 'SEARCH',
+    });
+  }
+
+  handleChangeToList = () => {
+    this.setState({
+      currentPage: 'LIST',
+    });
+  }
+
   render() {
+    let currentView;
+
     if(this.state.haveData === false && this.state.apiData != null) {
       this.handleApiRun();
     }
 
-    if (this.state.loading) {
+    if (this.state.currentPage === 'SEARCH') {
+      currentView = <Search searchFunction={this.handleNewSearch}/>;
+    } else if (this.state.currentPage === 'PROFILE') {
+      currentView = <Profile />;
+    } else if (this.state.currentPage === 'LIST') {
+      currentView = <FilmList movies={this.state.likedMovies}/>;
+    } else {
+      currentView = (
+        <View style={{flex:1}}>
+          {this.renderPictures()}
+        </View>
+      );
+    }
+
+    if (this.state.currentPage === 'LOAD') {
       return (
         <SafeAreaView style={styles.containerLoad}>
           <View style={styles.loadMain}>
@@ -287,21 +334,19 @@ export default class AppControl extends React.Component {
             {/* <TitleBox currentMovie={this.state.currentMovie}/> */}
 
             {/*ANIMATION CARD*/}
-            <View style={{flex:1}}>
-              {this.renderPictures()}
-            </View>
+            {currentView}
             {/*ANIMATION CARD*/}
             
               <View style={styles.buttonsRow}>
-                <AnimatedTouchable style={styles.buttons} onPress={() => alert("YOU PRESSED IT!")}>
+                <AnimatedTouchable style={styles.buttons} onPress={this.handleChangeToList}>
                   <Image style={styles.buttonImage} source={require('./../assets/filmLogo.png')} />
                 </AnimatedTouchable>
 
-                <AnimatedTouchable style={styles.buttons} onPress={() => alert("YOU PRESSED IT!")}>
+                <AnimatedTouchable style={styles.buttons} onPress={this.handleChangeToSearch}>
                   <Image style={styles.buttonImage} source={require('./../assets/searchLogo.png')} />
                 </AnimatedTouchable>
 
-                <AnimatedTouchable style={styles.buttons} onPress={() => alert("YOU PRESSED IT!")}>
+                <AnimatedTouchable style={styles.buttons} onPress={this.handleChangeToProfile}>
                   <Image style={styles.buttonImage} source={require('./../assets/profileLogo.png')} />
                 </AnimatedTouchable>
               </View>

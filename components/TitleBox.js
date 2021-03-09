@@ -22,7 +22,7 @@ DescriptionBox.propTypes = {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 50,
+    fontSize: 40,
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
@@ -37,8 +37,8 @@ const styles = StyleSheet.create({
   titleBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 410,
-    height: 100,
+    width: 414,
+    height: 80,
     borderRadius: 20,
     backgroundColor: 'black',
     borderWidth: 2,

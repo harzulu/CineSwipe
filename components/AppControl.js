@@ -26,6 +26,42 @@ export default class AppControl extends React.Component {
     super(props);
     //FOR ANIMATION
     this.position = new Animated.ValueXY();
+    this.rotate = this.position.x.interpolate({
+      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      outputRange: ['-10deg', '0deg', '10deg'],
+      extrapolate: 'clamp'
+    })
+
+    this.rotateAndTranslate = {
+      transform: [{
+        rotate: this.rotate
+      },
+      ...this.position.getTranslateTransform()
+      ]
+    }
+
+    this.likeOpacity = this.position.x.interpolate({
+      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      outputRange: [0, 0, 1],
+      extrapolate: 'clamp'
+    })
+    this.dislikeOpacity = this.position.x.interpolate({
+      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      outputRange: [1, 0, 0],
+      extrapolate: 'clamp',
+    })
+
+    this.nextCardOpacity = this.position.x.interpolate({
+      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      outputRange: [1, 0, 1],
+      extrapolate: 'clamp'
+    })
+    this.nextCardScale = this.position.x.interpolate({
+      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      outputRange: [1, 0.8, 1],
+      extrapolate: 'clamp'
+    })
+
     //FOR APP_CONTROL
     this.state = {
       currentIndex: 0,
@@ -42,6 +78,7 @@ export default class AppControl extends React.Component {
         imdbRating: "0",
         overview: "NONE",
       },
+      likedMovies: [],
     };
   }  
 //LOADING SCREEN
@@ -54,7 +91,6 @@ export default class AppControl extends React.Component {
 //API METHODS
   handleApiRun = () => {
     const newMovies = MovieShuffle(this.state.apiData.results);
-    const num = parseInt(this.state.currentIndex);
     console.log("SHUFFLED MOVIES");
     let pictures = []
     for (let i = 0; i < newMovies.length; i++ ) {
@@ -63,8 +99,9 @@ export default class AppControl extends React.Component {
     this.setState({
       apiData: newMovies,
       haveData: true,
-      currentMovie: newMovies[num],
+      currentMovie: newMovies[0],
       moviePictures: pictures,
+      currentIndex: 0,
     })
   }
 
@@ -98,16 +135,19 @@ export default class AppControl extends React.Component {
 //CHANGE CURRENT MOVIE
   getMovie = () => {
     let num;
-
-    if (this.state.currentIndex === (this.state.apiData.length-1)) {
-      num = 0;
+    if (this.state.apiData === null) {
+      console.log("EMPTY");
     } else {
-      num = parseInt(this.state.currentIndex+1);
+      if (this.state.currentIndex === (this.state.apiData.length-1)) {
+        num = 0;
+      } else {
+        num = parseInt(this.state.currentIndex+1);
+      }
+      this.setState({
+        currentMovie: this.state.apiData[num],
+        currentIndex: num,
+      })
     }
-    this.setState({
-      currentMovie: this.state.apiData[num],
-      currentIndex: num,
-    })
   }
 
 //ANIMATION METHODS
@@ -118,9 +158,66 @@ export default class AppControl extends React.Component {
         this.position.setValue({ x: gestureState.dx, y: gestureState.dy })
       },
       onPanResponderRelease: (evt, gestureState) => {
-
+        if (gestureState.dx > 150) {
+          Animated.spring(this.position, {
+            toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
+            useNativeDriver: true,
+          }).start(() => {
+            this.setState({ currentIndex: this.state.currentIndex + 1, }, () => {
+              this.position.setValue({ x: 0, y: 0 })
+            })
+            this.getMovie();
+          })
+        }
+        else if (gestureState.dx < -150) {
+          Animated.spring(this.position, {
+            toValue: { x: -SCREEN_WIDTH - 100, y: gestureState.dy },
+            useNativeDriver: true,
+          }).start(() => {
+            this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
+              this.position.setValue({ x: 0, y: 0 })
+            })
+            this.getMovie();
+          })
+        }
+        else {
+          Animated.spring(this.position, {
+            toValue: { x: 0, y: 0 },
+            friction: 6,
+            useNativeDriver: true,
+          }).start()
+        }
       }
     })
+  }
+
+  renderPictures = () => {
+    let imageUrl, idNum;
+
+    if (this.state.moviePictures.length === 0) {
+      imageUrl = 'https://picsum.photos/400/700';
+      idNum = 0;
+    } else {
+      imageUrl = this.state.moviePictures[this.state.currentIndex].picture;
+      idNum = this.state.moviePictures[this.state.currentIndex].id;
+    }
+    return (
+      <Animated.View 
+      {...this.PanResponder.panHandlers}
+      key={idNum} style={[this.rotateAndTranslate, styles.main]}>
+
+        <Animated.View style={{ opacity: this.likeOpacity, transform: [{ rotate: '-30deg' }], position: 'absolute', top: 50, left: 40, zIndex: 1000 }}>
+          <Text style={styles.likeText}>LIKE</Text>
+        </Animated.View>
+
+        <Animated.View style={{ opacity: this.dislikeOpacity, transform: [{ rotate: '30deg' }], position: 'absolute', top: 50, right: 40, zIndex: 1000 }}>
+          <Text style={styles.dislikeText}>NOPE</Text>
+        </Animated.View>
+
+        <Image style={styles.mainImage} 
+        source={{uri: `${imageUrl}`}} />
+      </Animated.View>
+    )
   }
 
   render() {
@@ -128,16 +225,9 @@ export default class AppControl extends React.Component {
       this.handleApiRun();
     }
 
-    let picture;
-    if (this.state.moviePictures.length === 0) {
-      picture = 'https://picsum.photos/400/700';
-    } else {
-      picture = this.state.moviePictures[this.state.currentIndex].picture;
-    }
-
     if (this.state.loading) {
       return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.containerLoad}>
           <Text style={styles.subTitle}>Welcome to CineSwipe!</Text>
           <Text style={styles.subTitle}>Loading......</Text>
           {this.timerLoad()}
@@ -151,16 +241,11 @@ export default class AppControl extends React.Component {
 
             {/*ANIMATION CARD*/}
             <View style={{flex:1}}>
-              <Animated.View 
-              {...this.PanResponder.panHandlers}
-              style={[{ transform: this.position.getTranslateTransform() }, styles.main]}>
-                <Image style={styles.mainImage} 
-                source={{uri: `${picture}`}} />
-              </Animated.View>
+              {this.renderPictures()}
             </View>
             {/*ANIMATION CARD*/}
 
-            <DescriptionBox apiCall={() => this.goForAxios()} changeMovie={() => this.getMovie()} description={this.state.currentMovie.overview}/>
+            <DescriptionBox apiCall={() => this.goForAxios()} description={this.state.currentMovie.overview}/>
 
         </SafeAreaView>
       )
@@ -169,11 +254,15 @@ export default class AppControl extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  containerLoad: {
     flex: 1,
     backgroundColor: 'salmon',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'salmon',
   },
   text: {
     height: 40,
@@ -181,10 +270,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Courier'
   },
   main: {
-    flex: 1,
-    width: (SCREEN_WIDTH - 20),
-    height: (SCREEN_HEIGHT - 150),
+    width: (SCREEN_WIDTH),
+    height: (SCREEN_HEIGHT - 200),
     padding: 10,
+    position: 'absolute',
   },
   mainImage: {
     flex: 1,
@@ -192,5 +281,21 @@ const styles = StyleSheet.create({
     width: null,
     resizeMode: 'cover',
     borderRadius: 20
+  },
+  likeText: {
+    borderWidth: 1, 
+    borderColor: 'green', 
+    color: 'green', 
+    fontSize: 32, 
+    fontWeight: '800', 
+    padding: 10
+  },
+  dislikeText: {
+    borderWidth: 1, 
+    borderColor: 'red', 
+    color: 'red', 
+    fontSize: 32, 
+    fontWeight: '800', 
+    padding: 10
   }
 });

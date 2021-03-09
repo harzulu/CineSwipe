@@ -18,7 +18,6 @@ export default function DescriptionBox(props) {
   } else {
     return (
       <View style={styles.infoBox}>
-        <Button onPress={props.changeMovie} title={"Change Movie!"}/>
         <Text style={styles.text}>{props.description}</Text>
       </View>
     )
@@ -36,8 +35,8 @@ const styles = StyleSheet.create({
   infoBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 410,
-    height: 120,
+    width: 414,
+    height: 100,
     borderRadius: 20,
     backgroundColor: 'white',
     borderWidth: 2,
@@ -49,7 +48,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   text: {
-    height: 70,
+    height: 25,
     fontSize: 10,
     fontFamily: 'Courier',
     color: 'black',

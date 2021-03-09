@@ -22,10 +22,11 @@ DescriptionBox.propTypes = {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 40,
+    fontSize: 35,
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
+    fontFamily: 'Georgia',
   },
   subTitle: {
     fontSize: 20,
@@ -33,12 +34,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     color: 'white',
     marginTop: 5,
+    fontFamily: 'Georgia',
   },
   titleBox: {
     alignItems: 'center',
     justifyContent: 'center',
     width: 414,
-    height: 80,
+    height: 110,
     borderRadius: 20,
     backgroundColor: 'black',
     borderWidth: 2,

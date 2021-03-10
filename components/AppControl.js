@@ -5,7 +5,6 @@ import DescriptionBox from './DescriptionBox.js';
 import TitleBox from './TitleBox.js';
 import FlipCard from 'react-native-flip-card';
 import FilmList from './FilmList.js';
-import Search from './Search.js';
 import Profile from './Profile.js';
 
 import { 
@@ -14,8 +13,6 @@ import {
   View, 
   SafeAreaView, 
   Image, 
-  Button,
-  ImageBackground,
   Dimensions,
   Animated,
   PanResponder,
@@ -57,12 +54,12 @@ export default class AppControl extends React.Component {
     })
 
     this.nextCardOpacity = this.position.x.interpolate({
-      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      inputRange: [-SCREEN_WIDTH / 3, 0, SCREEN_WIDTH / 3],
       outputRange: [1, 0, 1],
       extrapolate: 'clamp'
     })
     this.nextCardScale = this.position.x.interpolate({
-      inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
+      inputRange: [-SCREEN_WIDTH / 3, 0, SCREEN_WIDTH / 3],
       outputRange: [1, 0.8, 1],
       extrapolate: 'clamp'
     })
@@ -93,9 +90,11 @@ export default class AppControl extends React.Component {
     }, 2000);
     console.log("LOADED");
   }
+
 //API METHODS
   componentDidMount() {
     this.goForAxios();
+    console.log("Width: " + SCREEN_WIDTH + "|| Height: " + SCREEN_HEIGHT);
   }
 
   handleApiRun = () => {
@@ -115,10 +114,10 @@ export default class AppControl extends React.Component {
     console.log("SHUFFLED MOVIES");
     this.setState({
       apiData: newMovies,
-      haveData: true,
       currentMovie: newMovies[0],
       moviePictures: pictures,
       currentIndex: 0,
+      haveData: true,
     })
   }
 
@@ -128,7 +127,7 @@ export default class AppControl extends React.Component {
     // const type = "movie"
     // const genre = "18"
     const page = Math.floor(Math.random() * 150);// 1 through 150
-    console.log("Page number" + page);
+    console.log("Page number: " + page);
 
     console.log('GETTING DATA FROM AXIOS');
       setTimeout(() => {
@@ -160,22 +159,22 @@ export default class AppControl extends React.Component {
     //   });
   }
 //CHANGE CURRENT MOVIE
-  getMovie = () => {
-    let num;
-    if (this.state.apiData === null) {
-      console.log("EMPTY");
-    } else {
-      if (this.state.currentIndex === (this.state.apiData.length-1)) {
-        num = 0;
-      } else {
-        num = parseInt(this.state.currentIndex+1);
-      }
-      this.setState({
-        currentMovie: this.state.apiData[num],
-        currentIndex: num,
-      })
-    }
-  }
+  // getMovie = () => {
+  //   let num;
+  //   if (this.state.apiData === null) {
+  //     console.log("EMPTY");
+  //   } else {
+  //     if (this.state.currentIndex === (this.state.apiData.length-1)) {
+  //       num = 0;
+  //     } else {
+  //       num = parseInt(this.state.currentIndex+1);
+  //     }
+  //     this.setState({
+  //       currentMovie: this.state.apiData[num],
+  //       currentIndex: num,
+  //     })
+  //   }
+  // }
 
   handleNewSearch = () => {
 
@@ -194,16 +193,16 @@ export default class AppControl extends React.Component {
             toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
             useNativeDriver: true,
           }).start(() => {
-            this.setState({ currentIndex: this.state.currentIndex + 1, }, () => {
+            if (parseInt(this.state.currentIndex + 1) === this.state.apiData.length){}
+            this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
             console.log("Movie Liked!");
             let { likedMovies } = this.state;
-            likedMovies.push(this.state.currentMovie);
+            likedMovies.push(this.state.apiData[this.state.currentIndex]);
             this.setState({
               likedMovies: likedMovies,
             });
-            this.getMovie();
           })
         }
         else if (gestureState.dx < -150) {
@@ -211,11 +210,10 @@ export default class AppControl extends React.Component {
             toValue: { x: -SCREEN_WIDTH - 100, y: gestureState.dy },
             useNativeDriver: true,
           }).start(() => {
-            this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
+            this.setState({ currentIndex: this.state.currentIndex + 1, }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
             console.log("Movie Disliked!");
-            this.getMovie();
           })
         }
         else {
@@ -230,52 +228,86 @@ export default class AppControl extends React.Component {
   }
 
   renderPictures = () => {
-    let imageUrl, idNum;
-
-    if (this.state.moviePictures.length === 0) {
-      imageUrl = 'https://picsum.photos/400/700';
-      idNum = 0;
+    if(this.state.apiData === null) {
+      return (
+        <Text>Loading</Text>
+      )
     } else {
-      imageUrl = this.state.moviePictures[this.state.currentIndex].picture;
-      idNum = this.state.moviePictures[this.state.currentIndex].id;
+      return(this.state.apiData.map((currentMovie, i) => {
+        if (i < this.state.currentIndex) {
+          return null;
+        } else if (i === this.state.currentIndex) {
+          return (
+            <Animated.View 
+            {...this.PanResponder.panHandlers}
+            key={i} style={[this.rotateAndTranslate, styles.main]}>
+
+              <Animated.View style={{ opacity: this.likeOpacity, transform: [{ rotate: '-30deg' }], backgroundColor: 'green', position: 'absolute', top: 50, left: 40, zIndex: 1000 }}>
+                <Text style={styles.likeText}>YAY</Text>
+              </Animated.View>
+
+              <Animated.View style={{ opacity: this.dislikeOpacity, transform: [{ rotate: '30deg' }], backgroundColor: 'red', position: 'absolute', top: 50, right: 40, zIndex: 1000 }}>
+                <Text style={styles.likeText}>NAY</Text>
+              </Animated.View>
+
+              <FlipCard 
+              friction={9}
+              perspective={1500}
+              flipHorizontal={true}
+              flipVertical={false}
+              flip={false}>
+
+                {/* Face Side */}
+                <View style={styles.mainCard}>
+                  <TitleBox currentMovie={currentMovie}/>
+                  <Image style={styles.mainImage} 
+                  source={{uri: `${currentMovie.posterURLs.original}`}} />
+                </View>
+
+                {/* Back Side */}
+                <DescriptionBox currentMovie={currentMovie}/>
+
+              </FlipCard>
+            </Animated.View>
+          )
+        } else {
+          
+          return (
+            <Animated.View 
+            {...this.PanResponder.panHandlers}
+            key={i} style={[{opacity: this.nextCardOpacity}, {transform: [{ scale: this.nextCardScale }],}, styles.main]}>
+
+            <Animated.View style={{ opacity: 0, transform: [{ rotate: '-30deg' }], backgroundColor: 'green', position: 'absolute', top: 50, left: 40, zIndex: 1000 }}>
+              <Text style={styles.likeText}>YAY</Text>
+            </Animated.View>
+
+            <Animated.View style={{ opacity: 0, transform: [{ rotate: '30deg' }], backgroundColor: 'red', position: 'absolute', top: 50, right: 40, zIndex: 1000 }}>
+              <Text style={styles.likeText}>NAY</Text>
+            </Animated.View>
+
+            <FlipCard 
+            friction={9}
+            perspective={1500}
+            flipHorizontal={true}
+            flipVertical={false}
+            flip={false}>
+
+              {/* Face Side */}
+              <View style={styles.mainCard}>
+                <TitleBox currentMovie={currentMovie}/>
+                <Image style={styles.mainImage} 
+                source={{uri: `${currentMovie.posterURLs.original}`}} />
+              </View>
+
+              {/* Back Side */}
+              <DescriptionBox currentMovie={currentMovie}/>
+
+            </FlipCard>
+          </Animated.View>
+          )
+        }
+      })).reverse()
     }
-    return (
-      <Animated.View 
-      {...this.PanResponder.panHandlers}
-      key={idNum} style={[this.rotateAndTranslate, styles.main]}>
-
-        <Animated.View style={{ opacity: this.likeOpacity, transform: [{ rotate: '-30deg' }], backgroundColor: 'green', position: 'absolute', top: 50, left: 40, zIndex: 1000 }}>
-          <Text style={styles.likeText}>YAY</Text>
-        </Animated.View>
-
-        <Animated.View style={{ opacity: this.dislikeOpacity, transform: [{ rotate: '30deg' }], backgroundColor: 'red', position: 'absolute', top: 50, right: 40, zIndex: 1000 }}>
-          <Text style={styles.likeText}>NAY</Text>
-        </Animated.View>
-
-
-        <FlipCard 
-        friction={6}
-        perspective={1000}
-        flipHorizontal={true}
-        flipVertical={false}
-        flip={false}>
-
-          {/* Face Side */}
-          <View style={styles.mainCard}>
-            <TitleBox currentMovie={this.state.currentMovie}/>
-            
-              <Image style={styles.mainImage} 
-              source={{uri: `${imageUrl}`}} />
-            
-          </View>
-
-          {/* Back Side */}
-          <DescriptionBox apiCall={() => this.goForAxios()} currentMovie={this.state.currentMovie}/>
-
-        </FlipCard>
-
-      </Animated.View>
-    )
   }
 
 //CHANGE PAGES
@@ -297,20 +329,30 @@ export default class AppControl extends React.Component {
     });
   }
 
+  handleChangeBack = () => {
+    this.setState({
+      currentPage: 'MAIN',
+    });
+  }
+
+  handleChangeHaveData = () => {
+    this.setState({
+      haveData: true,
+    });
+  }
+
   render() {
     let currentView;
 
-    if(this.state.haveData === false && this.state.apiData != null) {
+    if (this.state.haveData === false && this.state.apiData != null) {
       this.handleApiRun();
     }
 
-    if (this.state.currentPage === 'SEARCH') {
-      currentView = <Search searchFunction={this.handleNewSearch}/>;
-    } else if (this.state.currentPage === 'PROFILE') {
+    if (this.state.currentPage === 'PROFILE') {
       currentView = <Profile />;
     } else if (this.state.currentPage === 'LIST') {
-      currentView = <FilmList movies={this.state.likedMovies}/>;
-    } else {
+      currentView = <FilmList movies={this.state.likedMovies} />;
+    } else if (this.state.haveData) {
       currentView = (
         <View style={{flex:1}}>
           {this.renderPictures()}
@@ -330,24 +372,21 @@ export default class AppControl extends React.Component {
     } else {
       return (
         <SafeAreaView style={styles.container}>
-
-            {/* <TitleBox currentMovie={this.state.currentMovie}/> */}
-
             {/*ANIMATION CARD*/}
             {currentView}
             {/*ANIMATION CARD*/}
             
               <View style={styles.buttonsRow}>
                 <AnimatedTouchable style={styles.buttons} onPress={this.handleChangeToList}>
+                  <Image style={styles.buttonImage} source={require('./../assets/profileLogo.png')} />
+                </AnimatedTouchable>
+
+                <AnimatedTouchable style={styles.buttons} onPress={this.handleChangeBack}>
                   <Image style={styles.buttonImage} source={require('./../assets/filmLogo.png')} />
                 </AnimatedTouchable>
 
-                <AnimatedTouchable style={styles.buttons} onPress={this.handleChangeToSearch}>
-                  <Image style={styles.buttonImage} source={require('./../assets/searchLogo.png')} />
-                </AnimatedTouchable>
-
                 <AnimatedTouchable style={styles.buttons} onPress={this.handleChangeToProfile}>
-                  <Image style={styles.buttonImage} source={require('./../assets/profileLogo.png')} />
+                  <Image style={styles.buttonImage} source={require('./../assets/searchLogo.png')} />
                 </AnimatedTouchable>
               </View>
             
@@ -367,7 +406,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#2C3432',
+    backgroundColor: '#71AFA9',
   },
   loadImage: {
     flex: 1,
@@ -408,14 +447,6 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderRadius: 20,
     backgroundColor: 'black',
-    shadowColor: "#FAF198",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.57,
-    shadowRadius: 15,
-    elevation: 13,
   },
   likeText: {
     borderWidth: 1, 
@@ -430,28 +461,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     position: 'absolute', 
-    bottom: 0
+    bottom: 0,
+    height: 64,
+    backgroundColor: '#2C3432',//
   },
   buttons: {
     alignItems: 'center',
     justifyContent: 'center',
     height: 60,
     width: 60,
-    backgroundColor: 'white',
-    borderColor: 'black',
-    borderWidth: 2,
-    borderRadius: 70,
     marginLeft: 39,
     marginRight: 39,
     marginBottom: 10,
-    // shadowColor: "white",
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 11,
-    // },
-    // shadowOpacity: 0.57,
-    // shadowRadius: 15.19,
-    // elevation: 23,
   },
   buttonImage: {
     alignItems: 'center',

@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default function DescriptionBox(props) {
+export default function ListDescription(props) {
 
   const num = parseInt(props.currentMovie.imdbRating);
   let rating;
@@ -46,7 +46,7 @@ export default function DescriptionBox(props) {
   )
 }
 
-DescriptionBox.propTypes = {
+ListDescription.propTypes = {
   apiCall: PropTypes.func,
   changeMovie: PropTypes.func,
   currentMovie: PropTypes.object,
@@ -55,15 +55,14 @@ DescriptionBox.propTypes = {
 
 const styles = StyleSheet.create({
   infoBox: {
+    width: (SCREEN_WIDTH - 20),
+    height: (SCREEN_HEIGHT - 90),
+    padding: 5,
     flex: 1,
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    resizeMode: 'cover',
     borderRadius: 20,
-    width: (SCREEN_WIDTH - 20),
-    height: (SCREEN_HEIGHT - 110),
-    padding: 10,
-    position: 'absolute',
     backgroundColor: 'white',
     borderColor: 'black',
     borderWidth: 2,

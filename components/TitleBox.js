@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: (SCREEN_WIDTH - 20),
     height: 100,
-    backgroundColor: 'black',
+    backgroundColor: '#2C3432',
     borderWidth: 2,
     borderColor: 'white',
     borderTopLeftRadius: 20,

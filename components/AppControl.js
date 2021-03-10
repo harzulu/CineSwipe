@@ -158,23 +158,6 @@ export default class AppControl extends React.Component {
     //     console.log(error);
     //   });
   }
-//CHANGE CURRENT MOVIE
-  // getMovie = () => {
-  //   let num;
-  //   if (this.state.apiData === null) {
-  //     console.log("EMPTY");
-  //   } else {
-  //     if (this.state.currentIndex === (this.state.apiData.length-1)) {
-  //       num = 0;
-  //     } else {
-  //       num = parseInt(this.state.currentIndex+1);
-  //     }
-  //     this.setState({
-  //       currentMovie: this.state.apiData[num],
-  //       currentIndex: num,
-  //     })
-  //   }
-  // }
 
   handleNewSearch = () => {
 
@@ -314,12 +297,6 @@ export default class AppControl extends React.Component {
   handleChangeToProfile = () => {
     this.setState({
       currentPage: 'PROFILE',
-    });
-  }
-
-  handleChangeToSearch = () => {
-    this.setState({
-      currentPage: 'SEARCH',
     });
   }
 

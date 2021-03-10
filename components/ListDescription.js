@@ -34,9 +34,9 @@ export default function ListDescription(props) {
   const min = (parseInt(props.currentMovie.runtime) % 60);
   return (
     <View style={styles.infoBox}>
-      <Text style={styles.textTitle}>"{props.currentMovie.title}"</Text>
-      <Text style={styles.text}>{props.currentMovie.year}</Text>
-      <Text style={styles.text}>{props.currentMovie.tagline}</Text>
+      <Text style={styles.textTitle}>{props.currentMovie.title}</Text>
+      <Text style={styles.text}>-{props.currentMovie.year}-</Text>
+      <Text style={styles.text}>"{props.currentMovie.tagline}"</Text>
       <Text style={styles.textInfo}>Runtime: {hours} hr {min} min</Text>
       {rating}
       <Text style={styles.textInfo}>Synopsis:</Text>

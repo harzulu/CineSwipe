@@ -60,10 +60,13 @@ Take on a whole new past time of finding you next movie to watch! Enter in the s
 # 📷 Examples
 <p align="center">
   <a>
+  <img src="./assets/exampleLoad.gif" width="150px" height="auto" />
+  </a>
+  <a>
   <img src="./assets/exampleCard.gif" width="150px" height="auto" />
   </a>
   <a>
-  <img src="./assets/exampleLoad.gif" width="150px" height="auto" />
+  <img src="./assets/searchPage.png" width="150px" height="auto" />
   </a>
   <a>
   <img src="./assets/exampleLikes.gif" width="150px" height="auto" />

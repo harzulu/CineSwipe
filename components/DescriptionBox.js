@@ -3,7 +3,6 @@ import {
   StyleSheet, 
   Text,
   View,
-  Button,
   Dimensions,
   Image,
 } from 'react-native';
@@ -32,6 +31,15 @@ export default function DescriptionBox(props) {
 
   const hours = parseInt(parseInt(props.currentMovie.runtime)/ 60);
   const min = (parseInt(props.currentMovie.runtime) % 60);
+  const servicesArr = Object.keys(props.currentMovie.streamingInfo)
+  let services = "";
+  servicesArr.forEach((word, i) => {
+    if (i === 0) {
+      services += word;
+    } else {
+      services += `, ${word}`;
+    }
+  })
   return (
     <View style={styles.infoBox}>
       <Text style={styles.textTitle}>{props.currentMovie.title}</Text>
@@ -39,6 +47,7 @@ export default function DescriptionBox(props) {
       <Text style={styles.text}>"{props.currentMovie.tagline}"</Text>
       <Text style={styles.textInfo}>Runtime: {hours} hr {min} min</Text>
       {rating}
+      <Text style={styles.textInfo}>Avaiable On: {services}</Text>
       <Text style={styles.textInfo}>Synopsis:</Text>
       <Text style={styles.text}>"{props.currentMovie.overview}"</Text>
       <Image style={styles.backDropImage} source={{uri: `${props.currentMovie.backdropURLs.original}`}}/>

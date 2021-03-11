@@ -8,7 +8,6 @@ import {
 import PropTypes from 'prop-types';
 import DescriptionBox from './DescriptionBox';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function TitleBox(props) {
@@ -30,7 +29,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
-    fontFamily: 'Georgia',
+    fontFamily: 'Courier',
   },
   subTitle: {
     fontSize: 20,
@@ -38,7 +37,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     color: 'white',
     marginTop: 5,
-    fontFamily: 'Georgia',
+    fontFamily: 'Courier',
   },
   titleBox: {
     alignItems: 'center',

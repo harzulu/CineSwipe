@@ -3,7 +3,6 @@ import {
   StyleSheet, 
   Text,
   View,
-  Button,
   Dimensions,
   Image,
   Animated,
@@ -11,14 +10,12 @@ import {
   ScrollView
 } from 'react-native';
 import PropTypes from 'prop-types';
-import DescriptionBox from './DescriptionBox.js';
 import TitleBox from './TitleBox.js';
 import FlipCard from 'react-native-flip-card';
 import ListDescription from './ListDescription.js';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function FilmList(props) {
   let currentView;
@@ -68,8 +65,7 @@ FilmList.propTypes = {
 
 const styles = StyleSheet.create({
   main: {
-    width: (SCREEN_WIDTH - 20),
-    height: (SCREEN_HEIGHT - 50),
+    marginTop: 280,
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
@@ -79,9 +75,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 50,
-    margin: 10,
-    fontFamily: 'Georgia',
+    fontSize: 40,
+    marginTop: 20,
+    marginBottom: 10,
+    fontFamily: 'Courier',
   },  
   mainCard: {
     width: (SCREEN_WIDTH),

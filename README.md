@@ -82,16 +82,16 @@ Take on a whole new past time of finding you next movie to watch! Enter in the s
 # ⚙️ Technologies Used
 
 * <a href="https://code.visualstudio.com/">Microsoft Visual Studio Code</a>
-* <a href="https://github.com/">Git/GitHub</a>
-* <a href="https://reactjs.org/">React.js</a>
-* <a href="https://reactnative.dev/">React Native</a>
-* <a href="https://expo.io/">Expo</a>
-* <a href="https://apps.apple.com/us/app/expo-go/id982107779">Expo Go</a>
-* <a href="https://webpack.js.org/">Webpack.js</a>
-* <a href="https://nodejs.org/en/">Node.js</a>
-* <a href="https://callstack.github.io/react-native-paper/index.html">React Native Paper</a>
-* <a href="https://www.npmjs.com/package/react-native-flip-card">React Native Flip Card</a>
 * <a href="https://rapidapi.com/movie-of-the-night-movie-of-the-night-default/api/streaming-availability/details">Streaming Availability API</a>
+* <a href="https://www.npmjs.com/package/react-native-flip-card">React Native Flip Card</a>
+* <a href="https://callstack.github.io/react-native-paper/index.html">React Native Paper</a>
+* <a href="https://reactnative.dev/">React Native</a>
+* <a href="https://webpack.js.org/">Webpack.js</a>
+* <a href="https://github.com/">Git/GitHub</a>
+* <a href="https://apps.apple.com/us/app/expo-go/id982107779">Expo Go</a>
+* <a href="https://reactjs.org/">React.js</a>
+* <a href="https://nodejs.org/en/">Node.js</a>
+* <a href="https://expo.io/">Expo</a>
 
 # 💾 Installation Requirements
 

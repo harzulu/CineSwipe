@@ -58,6 +58,10 @@ Take on a whole new past time of finding you next movie to watch! Enter in the s
 
 # 📊 Diagram
 
+<img src="./assets/exampleCard.gif" width="150px" height="auto" />
+<img src="./assets/exampleLoad.gif" width="150px" height="auto" />
+<img src="./assets/exampleLikes.gif" width="150px" height="auto" />
+
 # 🧑‍💻 Contributers
 
 | Name | GitHub Profile |

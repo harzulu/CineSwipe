@@ -10,6 +10,7 @@ import DescriptionBox from './DescriptionBox';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+// Top Title box on card
 export default function TitleBox(props) {
   return (
     <View style={styles.titleBox}>
@@ -23,6 +24,7 @@ DescriptionBox.propTypes = {
   currentMovie: PropTypes.object,
 }
 
+//ALL STYLING
 const styles = StyleSheet.create({
   title: {
     fontSize: 30,

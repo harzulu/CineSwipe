@@ -1,14 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { Chip } from 'react-native-paper';
+
 import { 
   StyleSheet, 
   Text,
   View,
   ScrollView
 } from 'react-native';
-import PropTypes from 'prop-types';
-import { Chip } from 'react-native-paper';
 
+// All search terms page
 export default function Search(props) {
+  // All search terms if they are selected or not
   let allParams = {
     biography: false,
     music: false,
@@ -47,11 +50,11 @@ export default function Search(props) {
     starz: false,
     showtime: false,
   }
-
+  // change parameter in allParams to opposite
   function change(property) {
     allParams[property] = !allParams[property];
   }
-
+  // if coming to page and there is parameters selected in AppControl, set those to true in allParam
   props.paramLists.forEach((array, i) => {
     if (array.length) {
       array.forEach(parameter => {
@@ -272,6 +275,7 @@ Search.propTypes = {
   paramLists: PropTypes.array,
 }
 
+// ALL STYLING
 const styles = StyleSheet.create({
   main: {
     alignItems: 'center',

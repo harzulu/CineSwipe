@@ -1,17 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import { 
   StyleSheet, 
-  Text,
   View,
   Image,
   Animated,
   TouchableOpacity,
 } from 'react-native';
-import PropTypes from 'prop-types';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 let currentColor = "#EB5B49";
 
+// Set color of nav bar depending on current page
 function changeColor(color) {
   if (color === "list") {
     currentColor = "#FFBB00";
@@ -47,6 +48,7 @@ NavBar.propTypes = {
   intro: PropTypes.bool,
 } 
 
+//ALL STYLING
 const styles = StyleSheet.create({
   buttonsRow: {
     flex: 1,

@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import { 
   StyleSheet, 
   Text,
@@ -6,13 +8,12 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import PropTypes from 'prop-types';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+// FILE IS SAME AS 'DescriptionBox.js' BUT WITH CHANGES TO STYLING AND FORMATTING TO GET INTO SCROLL LIST
 export default function ListDescription(props) {
-
   const num = parseInt(props.currentMovie.imdbRating);
   let rating;
   if (num <= 30) {

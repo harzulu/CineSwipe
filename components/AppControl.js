@@ -1,13 +1,13 @@
 import React from 'react';
 import axios from 'axios';
 import config from './../config.js';
+import FlipCard from 'react-native-flip-card';
+import { ActivityIndicator, ProgressBar } from 'react-native-paper';
 import DescriptionBox from './DescriptionBox.js';
 import TitleBox from './TitleBox.js';
-import FlipCard from 'react-native-flip-card';
 import FilmList from './FilmList.js';
 import Search from './Search.js';
 import NavBar from './NavBar.js';
-import { ActivityIndicator, ProgressBar } from 'react-native-paper';
 
 import { 
   StyleSheet, 
@@ -52,7 +52,6 @@ const genres = {
   "mystery" : "9648",
   "documentary" : "99",
 }
-const popGenres = ["romance", "war", "adventure", "drama", "horror", "action", "comedy", "history", "sport", "thriller", "crime", "scienceFiction", "documentary"];
 
 export default class AppControl extends React.Component {
   constructor(props) {
@@ -64,7 +63,6 @@ export default class AppControl extends React.Component {
       outputRange: ['-10deg', '0deg', '10deg'],
       extrapolate: 'clamp'
     })
-
     this.rotateAndTranslate = {
       transform: [{
         rotate: this.rotate
@@ -72,7 +70,6 @@ export default class AppControl extends React.Component {
       ...this.position.getTranslateTransform()
       ]
     }
-
     this.likeOpacity = this.position.x.interpolate({
       inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
       outputRange: [0, 0, 1],
@@ -94,20 +91,19 @@ export default class AppControl extends React.Component {
       outputRange: [1, 0.8, 1],
       extrapolate: 'clamp'
     })
-
     //FOR APP_CONTROL
     this.state = {
       initialLoad: true,
-      currentIndex: 0,
       currentPage: 'LOAD',
       haveData: false,
       apiData: null,
+      pageMax: "0",
       movieData: [],
+      currentIndex: 0,
       likedMovies: [],
       searchParametersService: [],
       searchParametersGenre: [],
       pastSearches: [],
-      pageMax: "0",
       lastCall: {
         service: 'netflix',
         genre: '18',
@@ -115,21 +111,18 @@ export default class AppControl extends React.Component {
       },
     };
   }  
-//LOADING SCREEN
+//INITIAL LOADING SCREEN
   timerLoad = () => {
     setTimeout(() => {
       this.setState({ currentPage: 'INTRO' });
-    }, 2000);
+    }, 2500);
     console.log("LOADED");
   }
 
 //API METHODS
-  handleApiRun = () => {
-    //Shuffle Movies
+  handleShuffleApiData = () => {
+    //Shuffle apiData to movieData
     const { apiData, movieData } = this.state
-
-    console.log("Pages: " + apiData.total_pages);
-    console.log(this.state.lastCall);
 
     if (apiData.results.length != 0) {
       for (let i = 0; i < apiData.results.length; i++) {
@@ -140,19 +133,14 @@ export default class AppControl extends React.Component {
           movieData.push(apiData.results[num]);
         }
       }
-      console.log("SHUFFLED MOVIES");
       this.setState({
         movieData: movieData,
         apiData: null,
         haveData: true,
-        lastCall: {
-          service: 'netflix',
-          genre: '18',
-          page: '1',
-        },
-        pageMax: "0",
+        
       })
     } else {
+      // if second call was still empty data, try new call with completely different search parameters from user selected list
       console.log("Empty return");
       console.log(apiData);
       this.handleApiPrep();
@@ -160,8 +148,7 @@ export default class AppControl extends React.Component {
   }
 
   handleApiPrep = () => {
-    console.log("SUPER Searched!");
-    
+    // Randomize the search parameters to be from only the user selected options    
     if(this.state.searchParametersService.length === 0 || this.state.searchParametersGenre.length === 0){
       alert("You Need to select at least one search parameter in each category to get your movies!");
     } else {
@@ -170,56 +157,23 @@ export default class AppControl extends React.Component {
         haveData: false,
       });
 
-      const { pastSearches, lastCall } = this.state;
       let service = this.state.searchParametersService[Math.floor(Math.random() * this.state.searchParametersService.length)];
       const genreName = this.state.searchParametersGenre[Math.floor(Math.random() * this.state.searchParametersGenre.length)];
       let genre = genres[genreName];
       let newSearch = { service: service, genre: genre, page: "1000" };
 
-      // if (this.state.pageMax != 0) {
-      //   // if (pastSearches.length != 0) {
-      //   //   if (pastSearches.includes(newSearch)) {
-      //   //     let newNum = 0;
-      //   //     while(newNum === page) {
-      //   //       newNum = Math.floor(Math.random() * num);
-      //   //     }
-      //   //     newSearch = { service: service, genre: genre, page: newNum };
-      //   //     page = newNum;
-      //   //   }
-      //   // }
-      //   newSearch = {...lastCall};
-      //   newSearch.page = Math.floor(Math.random() * this.state.pageMax);
-      // }
-      //   // if (pastSearches.includes(newSearch)) {
-      //   //   let newNum = 0;
-      //   //   while(newNum === page) {
-      //   //     newNum = Math.floor(Math.random() * this.state.pageMax);
-      //   //   }
-      //   //   newSearch["page"] = newNum;
-      //   //   page = newNum
-      //   // }
-
-      this.setState({
-        //pastSearches: pastSearches.push(newSearch),
-        lastCall: newSearch,
-      });
-
-      console.log("First Search:");
-      console.log(newSearch);
-
+      // Make initial API call with page number at 1000 to get blank return with the total number on pages to save that number,
+      // to make a new call with a random number within 0 and that max page number.
       this.goForAxios(newSearch);
 
       setTimeout(() => {
-        console.log(this.state.apiData);
+        // Wait to finish getting and assigning response to apiData,
+        // to then re-call with page number between 0 and page max
         newSearch.page = (Math.floor(Math.random() * this.state.apiData.total_pages)).toString();
-  
-        console.log("Second Search:");
-        console.log(newSearch);
-  
         this.goForAxios(newSearch);
-
         setTimeout(() => {
-          this.handleApiRun();
+          // Wait for second api call to finish to shuffle returned data
+          this.handleShuffleApiData();
         }, 5000)
       }, 3000)
 
@@ -254,13 +208,8 @@ export default class AppControl extends React.Component {
         });
     }
 
-  handleNewSearch = () => {
-    setTimeout(() => {
-      this.handleApiRun();
-    }, 2000);
-  }
-
   addLikedMovie = () => {
+    // take current movie and add it to the 'likedMovies' list
     let { likedMovies } = this.state;
     likedMovies.push(this.state.movieData[this.state.currentIndex]);
     this.setState({
@@ -273,10 +222,15 @@ export default class AppControl extends React.Component {
     this.PanResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gestureState) => true,
       onPanResponderMove: (evt, gestureState) => {
+        // set card x and y position to the touch location
         this.position.setValue({ x: gestureState.dx, y: gestureState.dy })
       },
       onPanResponderRelease: (evt, gestureState) => {
+        // when the user lets go if the card:
         if (gestureState.dx > 150) {
+          // if the card is to the right, it is a like.
+          // if it is the last card, make a new api call,
+          // else: add this card to the likedMovies list, set index to + 1
           Animated.spring(this.position, {
             toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
             useNativeDriver: true,
@@ -291,10 +245,12 @@ export default class AppControl extends React.Component {
             this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
-            console.log("Movie Liked!");
           })
         }
         else if (gestureState.dx < -150) {
+          // if the card is to the left, it is a dislike.
+          // if it is the last card, make a new api call,
+          // else: continue on.
           Animated.spring(this.position, {
             toValue: { x: -SCREEN_WIDTH - 100, y: gestureState.dy },
             useNativeDriver: true,
@@ -308,10 +264,10 @@ export default class AppControl extends React.Component {
             this.setState({ currentIndex: this.state.currentIndex + 1, }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
-            console.log("Movie Disliked!");
           })
         }
         else {
+          // if the card is still close to the center have it spring back to the center position
           Animated.spring(this.position, {
             toValue: { x: 0, y: 0 },
             friction: 6,
@@ -328,10 +284,12 @@ export default class AppControl extends React.Component {
         <Text>Loading</Text>
       )
     } else {
+      // Render all of the movie cards stacked to the next card will show behind
       return(this.state.movieData.map((currentMovie, i) => {
         if (i < this.state.currentIndex) {
           return null;
         } else if (i === this.state.currentIndex) {
+          // return top card
           return (
             <Animated.View 
             {...this.PanResponder.panHandlers}
@@ -366,6 +324,7 @@ export default class AppControl extends React.Component {
             </Animated.View>
           )
         } else {
+          // return a "behind" card
           return (
             <Animated.View 
             {...this.PanResponder.panHandlers}
@@ -411,6 +370,7 @@ export default class AppControl extends React.Component {
 
   handleChangeBack = (ifIntro) => {
     if (ifIntro) {
+      //if coming from instruction page, don't make api call
       this.setState({
         currentPage: 'MAIN',
       });
@@ -423,21 +383,25 @@ export default class AppControl extends React.Component {
       });
     }
   }
-
+// CHANGE SELECTED SEARCH PARAMETERS
   handleChangeSearchParam = (parameter, ifAdd) => {
     const services = ["netflix", "prime", "disney", "hbo", "hulu", "peacock", "paramount", "starz", "showtime"];
 
     if (services.includes(parameter)) {
+      // if parameter is a service
       let { searchParametersService } = this.state;
       if (ifAdd) {
+        // if the parameter needs to get added
         searchParametersService.push(parameter);
       } else {
+        // if the parameter needs to get removed from the list
         searchParametersService = searchParametersService.filter(val => val != parameter);
       }
       this.setState({
         searchParametersService: searchParametersService,
       })
     } else {
+      // if parameter is a genre
       let { searchParametersGenre } = this.state;
       if (ifAdd) {
         searchParametersGenre.push(parameter);
@@ -448,17 +412,19 @@ export default class AppControl extends React.Component {
         searchParametersGenre: searchParametersGenre,
       })
     }
-    console.log("Changed param! " + parameter + " " + ifAdd);
   }
-
+// MAIN RENDER
   render() {
     let currentView;
 
     if (this.state.currentPage === 'SEARCH') {
+      // page of search parameters
       currentView = <Search pageLoad={this.state.initialLoad} changeParam={this.handleChangeSearchParam} paramLists={[this.state.searchParametersService, this.state.searchParametersGenre]}/>;
     } else if (this.state.currentPage === 'LIST') {
+      // page of liked movies
       currentView = <FilmList movies={this.state.likedMovies} />;
     } else if (this.state.currentPage === 'INTRO') {
+      // instructions page
       return (
         <View style={{flex: 1, backgroundColor: 'rgb(142,199,250)'}}>
           <ImageBackground source={require('../assets/Intro.jpg')} style={{width: 413, height: 710}} />
@@ -467,12 +433,14 @@ export default class AppControl extends React.Component {
       );
     } else if (this.state.currentIndex === this.state.movieData.length) {
       if (this.state.haveData){
+        // regular main cards page
         currentView = (
           <View style={{flex:1}}>
             {this.renderPictures()}
           </View>
         );
       } else {
+        // loading animation on main page
         currentView = (
           <View style={styles.wait}>
             <Text style={styles.waitText}>Getting Your Movies!</Text>
@@ -492,6 +460,7 @@ export default class AppControl extends React.Component {
     }
 
     if (this.state.currentPage === 'LOAD') {
+      // initial loading page, then call timer method to wait and change 'currentPage'
       return (
         <View style={{flex: 1, backgroundColor: 'rgb(255,123,15)'}}>
           <ImageBackground style={{width: 414, height: 712}} source={require('./../assets/LoadGif.gif')} />
@@ -500,6 +469,7 @@ export default class AppControl extends React.Component {
         </View>
       )
     } else {
+      // normal main view with nav bar always at bottom
       return (
         <SafeAreaView style={styles.container}>
             {currentView}
@@ -509,7 +479,7 @@ export default class AppControl extends React.Component {
     }
   }
 }
-
+// ALL STYLES
 const styles = StyleSheet.create({
   containerLoad: {
     flex: 1,
@@ -522,13 +492,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgb(142,199,250)',
   },
-  // loadImage: {
-  //   flex: 1,
-  //   height: 400,
-  //   width: 400,
-  //   resizeMode: 'cover',
-  //   borderRadius: 10
-  // },
   loadMain: {
     width: (SCREEN_WIDTH),
     height: (SCREEN_HEIGHT - 90),

@@ -1,4 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import TitleBox from './TitleBox.js';
+import ListDescription from './ListDescription.js';
+import FlipCard from 'react-native-flip-card';
+
 import { 
   StyleSheet, 
   Text,
@@ -7,23 +12,22 @@ import {
   Image,
   ScrollView
 } from 'react-native';
-import PropTypes from 'prop-types';
-import TitleBox from './TitleBox.js';
-import FlipCard from 'react-native-flip-card';
-import ListDescription from './ListDescription.js';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+// List of cards but only of liked movies
 export default function FilmList(props) {
   let currentView;
   if (props.movies.length < 1) {
+    // if no liked movies
     currentView = (
       <View style={styles.main}>
         <Text style={{color: 'white', fontSize: 20}}>No movies</Text>
       </View>
     )
   } else {
+    // render all movies
     currentView = (props.movies.map((index, i) => {
       return (
         <View key={i} style={styles.mainCard}>
@@ -61,6 +65,7 @@ FilmList.propTypes = {
   changeState: PropTypes.func,
 }
 
+// ALL STYLING
 const styles = StyleSheet.create({
   main: {
     marginTop: 280,

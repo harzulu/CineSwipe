@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import { 
   StyleSheet, 
   Text,
@@ -6,13 +8,13 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import PropTypes from 'prop-types';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+// Back of movie card
 export default function DescriptionBox(props) {
-
+  // change color of IMDb raiting depending on how good the rating is
   const num = parseInt(props.currentMovie.imdbRating);
   let rating;
   if (num <= 30) {
@@ -28,7 +30,7 @@ export default function DescriptionBox(props) {
   } else {
     rating = <Text style={styles.textInfo}>IMDb Rating: {props.currentMovie.imdbRating}</Text>
   }
-
+  // get the hours and minutes from runtime (initially in only minutes)
   const hours = parseInt(parseInt(props.currentMovie.runtime)/ 60);
   const min = (parseInt(props.currentMovie.runtime) % 60);
   const servicesArr = Object.keys(props.currentMovie.streamingInfo)
@@ -40,6 +42,7 @@ export default function DescriptionBox(props) {
       services += `, ${word}`;
     }
   })
+  // return all information
   return (
     <View style={styles.infoBox}>
       <Text style={styles.textTitle}>{props.currentMovie.title}</Text>
@@ -56,12 +59,10 @@ export default function DescriptionBox(props) {
 }
 
 DescriptionBox.propTypes = {
-  apiCall: PropTypes.func,
-  changeMovie: PropTypes.func,
   currentMovie: PropTypes.object,
-
 }
 
+// ALL STYLING
 const styles = StyleSheet.create({
   infoBox: {
     flex: 1,

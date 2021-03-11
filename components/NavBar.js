@@ -29,7 +29,7 @@ export default function NavBar(props) {
         <Image style={styles.buttonImage} source={require('./../assets/listLogo.png')} />
       </AnimatedTouchable>
 
-      <AnimatedTouchable style={styles.buttons} onPress={() => {props.changeBack(); changeColor("main")}}>
+      <AnimatedTouchable style={styles.buttons} onPress={() => {props.changeBack(props.intro); changeColor("main")}}>
         <Image style={styles.buttonImage} source={require('./../assets/filmLogo.png')} />
       </AnimatedTouchable>
 
@@ -44,6 +44,7 @@ NavBar.propTypes = {
   toList: PropTypes.func,
   toSearch: PropTypes.func,
   changeBack: PropTypes.func,
+  intro: PropTypes.bool,
 } 
 
 const styles = StyleSheet.create({

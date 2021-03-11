@@ -5,8 +5,6 @@ import {
   View,
   Dimensions,
   Image,
-  Animated,
-  TouchableOpacity,
   ScrollView
 } from 'react-native';
 import PropTypes from 'prop-types';

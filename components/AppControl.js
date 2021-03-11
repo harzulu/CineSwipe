@@ -18,7 +18,7 @@ import {
   Dimensions,
   Animated,
   PanResponder,
-  TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -107,24 +107,30 @@ export default class AppControl extends React.Component {
       searchParametersService: [],
       searchParametersGenre: [],
       pastSearches: [],
+      pageMax: "0",
+      lastCall: {
+        service: 'netflix',
+        genre: '18',
+        page: '1',
+      },
     };
   }  
 //LOADING SCREEN
   timerLoad = () => {
     setTimeout(() => {
-      this.setState({ currentPage: 'SEARCH' });
+      this.setState({ currentPage: 'INTRO' });
     }, 2000);
     console.log("LOADED");
   }
 
 //API METHODS
-  componentDidMount() {
-    this.goForAxios();
-  }
-
   handleApiRun = () => {
     //Shuffle Movies
     const { apiData, movieData } = this.state
+
+    console.log("Pages: " + apiData.total_pages);
+    console.log(this.state.lastCall);
+
     if (apiData.results.length != 0) {
       for (let i = 0; i < apiData.results.length; i++) {
         const num = Math.floor(Math.random() * (apiData.results.length));
@@ -139,72 +145,114 @@ export default class AppControl extends React.Component {
         movieData: movieData,
         apiData: null,
         haveData: true,
+        lastCall: {
+          service: 'netflix',
+          genre: '18',
+          page: '1',
+        },
+        pageMax: "0",
       })
     } else {
-      this.handleChangeBack();
+      console.log("Empty return");
+      console.log(apiData);
+      this.handleApiPrep();
     }
   }
 
-  goForAxios = () => {
+  handleApiPrep = () => {
     console.log("SUPER Searched!");
     
     if(this.state.searchParametersService.length === 0 || this.state.searchParametersGenre.length === 0){
-      if (this.state.initialLoad) {
-        this.setState({
-          initialLoad: false,
-        })
-      } else {
-        alert("You Need to select at least one search parameter in each category to get your movies!");
-      }
+      alert("You Need to select at least one search parameter in each category to get your movies!");
     } else {
+
       this.setState({
         haveData: false,
       });
-      const { pastSearches } = this.state;
-      const service = this.state.searchParametersService[Math.floor(Math.random() * this.state.searchParametersService.length)];
+
+      const { pastSearches, lastCall } = this.state;
+      let service = this.state.searchParametersService[Math.floor(Math.random() * this.state.searchParametersService.length)];
       const genreName = this.state.searchParametersGenre[Math.floor(Math.random() * this.state.searchParametersGenre.length)];
-      const num = (popGenres.includes(genreName) ? 125 : 20 );
-      const page = Math.floor(Math.random() * num);
-      const genre = genres[genreName];
-      let newSearch = { service: service, genre: genre, page: page };
+      let genre = genres[genreName];
+      let newSearch = { service: service, genre: genre, page: "1000" };
 
-      if (pastSearches.length != 0) {
-        if (pastSearches.includes(newSearch)) {
-          let newNum = 0;
-          while(newNum === page) {
-            newNum = Math.floor(Math.random() * num);
-          }
-          newSearch = { service: service, genre: genre, page: newNum };
-          this.setState({
-            pastSearches: pastSearches.push(newSearch),
-          })
-          page = newNum;
-        }
-      }
+      // if (this.state.pageMax != 0) {
+      //   // if (pastSearches.length != 0) {
+      //   //   if (pastSearches.includes(newSearch)) {
+      //   //     let newNum = 0;
+      //   //     while(newNum === page) {
+      //   //       newNum = Math.floor(Math.random() * num);
+      //   //     }
+      //   //     newSearch = { service: service, genre: genre, page: newNum };
+      //   //     page = newNum;
+      //   //   }
+      //   // }
+      //   newSearch = {...lastCall};
+      //   newSearch.page = Math.floor(Math.random() * this.state.pageMax);
+      // }
+      //   // if (pastSearches.includes(newSearch)) {
+      //   //   let newNum = 0;
+      //   //   while(newNum === page) {
+      //   //     newNum = Math.floor(Math.random() * this.state.pageMax);
+      //   //   }
+      //   //   newSearch["page"] = newNum;
+      //   //   page = newNum
+      //   // }
+
+      this.setState({
+        //pastSearches: pastSearches.push(newSearch),
+        lastCall: newSearch,
+      });
+
+      console.log("First Search:");
       console.log(newSearch);
-      console.log('GETTING DATA FROM AXIOS');
-      // axios.get(`https://streaming-availability.p.rapidapi.com/search/basic?country=us&service=${service}&type=movie&genre=${genre}&page=${page}&language=en`, 
-      // {
-      //   "method": "GET",
-      //   "headers": {
-      //     "x-rapidapi-key": `${config.REACT_APP_API_KEY}`,
-      //     "x-rapidapi-host": `${config.REACT_APP_API_HOST}`
-      //   }
-      // })
-      // .then(response => {
-      //   console.log('GETTING DATA FROM AXIOS');
-      //   setTimeout(() => {
-      //       this.setState({
-      //           apiData: response.data,
-      //       })
-      //     }, 2000)
-      //   })
-      //   .catch(error => {
-      //     console.log(error);
-      //   });
-    }
 
+      this.goForAxios(newSearch);
+
+      setTimeout(() => {
+        console.log(this.state.apiData);
+        newSearch.page = (Math.floor(Math.random() * this.state.apiData.total_pages)).toString();
+  
+        console.log("Second Search:");
+        console.log(newSearch);
+  
+        this.goForAxios(newSearch);
+
+        setTimeout(() => {
+          this.handleApiRun();
+        }, 5000)
+      }, 3000)
+
+    }
   }
+
+  goForAxios = (callObj) => {
+    console.log("||==================================||");
+    const service = callObj.service;
+    const genre = callObj.genre;
+    const page = (callObj.page === "0" ? "1" : callObj.page);
+    
+      axios.get(`https://streaming-availability.p.rapidapi.com/search/basic?country=us&service=${service}&type=movie&genre=${genre}&page=${page}&language=en`, 
+      {
+        "method": "GET",
+        "headers": {
+          "x-rapidapi-key": `${config.REACT_APP_API_KEY}`,
+          "x-rapidapi-host": `${config.REACT_APP_API_HOST}`
+        }
+      })
+      .then(response => {
+        console.log('GETTING DATA FROM AXIOS');
+        setTimeout(() => {
+            console.log("Done with call");
+            this.setState({
+                apiData: response.data,
+            })
+          }, 2000)
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
 
   handleNewSearch = () => {
     setTimeout(() => {
@@ -233,14 +281,11 @@ export default class AppControl extends React.Component {
             toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
             useNativeDriver: true,
           }).start(() => {
-            if ((parseInt(this.state.currentIndex) + 1) === this.state.movieData.length) { 
+            if ((parseInt(this.state.currentIndex) + 1) >= this.state.movieData.length) { 
               this.setState({
                 haveData: false,
               })
-              this.goForAxios();
-              if (this.state.apiData != null) {
-                this.handleNewSearch(); 
-              } 
+              this.handleApiPrep();
             }
             this.addLikedMovie();
             this.setState({ currentIndex: this.state.currentIndex + 1 }, () => {
@@ -254,6 +299,12 @@ export default class AppControl extends React.Component {
             toValue: { x: -SCREEN_WIDTH - 100, y: gestureState.dy },
             useNativeDriver: true,
           }).start(() => {
+            if ((parseInt(this.state.currentIndex) + 1) >= this.state.movieData.length) { 
+              this.setState({
+                haveData: false,
+              })
+              this.handleApiPrep();
+            }
             this.setState({ currentIndex: this.state.currentIndex + 1, }, () => {
               this.position.setValue({ x: 0, y: 0 })
             })
@@ -358,22 +409,19 @@ export default class AppControl extends React.Component {
     });
   }
 
-  handleChangeBack = () => {
-    if (this.state.haveData === false) {
-      this.goForAxios(); 
-      if (this.state.apiData != null) {
-        this.handleNewSearch(); 
+  handleChangeBack = (ifIntro) => {
+    if (ifIntro) {
+      this.setState({
+        currentPage: 'MAIN',
+      });
+    } else {
+      if (this.state.haveData === false) {
+        this.handleApiPrep(); 
       }
+      this.setState({
+        currentPage: 'MAIN',
+      });
     }
-    this.setState({
-      currentPage: 'MAIN',
-    });
-  }
-
-  handleChangeHaveData = () => {
-    this.setState({
-      haveData: true,
-    });
   }
 
   handleChangeSearchParam = (parameter, ifAdd) => {
@@ -406,14 +454,17 @@ export default class AppControl extends React.Component {
   render() {
     let currentView;
 
-    if (this.state.haveData === false && this.state.apiData != null) {
-      this.handleApiRun();
-    }
-
     if (this.state.currentPage === 'SEARCH') {
       currentView = <Search pageLoad={this.state.initialLoad} changeParam={this.handleChangeSearchParam} paramLists={[this.state.searchParametersService, this.state.searchParametersGenre]}/>;
     } else if (this.state.currentPage === 'LIST') {
       currentView = <FilmList movies={this.state.likedMovies} />;
+    } else if (this.state.currentPage === 'INTRO') {
+      return (
+        <View style={{flex: 1, backgroundColor: 'rgb(142,199,250)'}}>
+          <ImageBackground source={require('../assets/Intro.jpg')} style={{width: 413, height: 710}} />
+          <NavBar intro={true} toList={this.handleChangeToList} toSearch={this.handleChangeToSearch} changeBack={this.handleChangeBack} />
+        </View>
+      );
     } else if (this.state.currentIndex === this.state.movieData.length) {
       if (this.state.haveData){
         currentView = (
@@ -442,19 +493,17 @@ export default class AppControl extends React.Component {
 
     if (this.state.currentPage === 'LOAD') {
       return (
-        <SafeAreaView style={styles.containerLoad}>
-          <View style={styles.loadMain}>
-            <Image style={styles.loadImage} source={require('./../assets/LoadGif.gif')} />
-            <ProgressBar progress={1} color={"#FF7D0D"} indeterminate={true}/>
-          </View>
+        <View style={{flex: 1, backgroundColor: 'rgb(255,123,15)'}}>
+          <ImageBackground style={{width: 414, height: 712}} source={require('./../assets/LoadGif.gif')} />
+          <ProgressBar progress={1} color={'rgb(142,199,250)'} indeterminate={true} style={{marginBottom: 20}}/>
           {this.timerLoad()}
-        </SafeAreaView>
+        </View>
       )
     } else {
       return (
         <SafeAreaView style={styles.container}>
             {currentView}
-            <NavBar toList={this.handleChangeToList} toSearch={this.handleChangeToSearch} changeBack={this.handleChangeBack}/>
+            <NavBar intro={false} toList={this.handleChangeToList} toSearch={this.handleChangeToSearch} changeBack={this.handleChangeBack}/>
         </SafeAreaView>
       )
     }
@@ -464,22 +513,22 @@ export default class AppControl extends React.Component {
 const styles = StyleSheet.create({
   containerLoad: {
     flex: 1,
-    backgroundColor: '#2C3432',
+    backgroundColor: 'rgb(142,199,250)',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 5,
   },
   container: {
     flex: 1,
-    backgroundColor: '#71AFA9',
+    backgroundColor: 'rgb(142,199,250)',
   },
-  loadImage: {
-    flex: 1,
-    height: null,
-    width: null,
-    resizeMode: 'cover',
-    borderRadius: 20
-  },
+  // loadImage: {
+  //   flex: 1,
+  //   height: 400,
+  //   width: 400,
+  //   resizeMode: 'cover',
+  //   borderRadius: 10
+  // },
   loadMain: {
     width: (SCREEN_WIDTH),
     height: (SCREEN_HEIGHT - 90),
@@ -532,7 +581,7 @@ const styles = StyleSheet.create({
   },
   wait: {
     flex: 1,
-    backgroundColor: '#71AFA9',
+    backgroundColor: 'rgb(142,199,250)',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 5,

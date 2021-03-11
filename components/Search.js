@@ -8,52 +8,58 @@ import {
 import PropTypes from 'prop-types';
 import { Chip } from 'react-native-paper';
 
-let allParams = {
-  biography: false,
-  music: false,
-  romance: false,
-  family: false,
-  war: false,
-  news: false,
-  reality: false,
-  talkShow: false,
-  adventure: false,
-  fantasy: false,
-  animation: false,
-  drama: false,
-  filmNoir: false,
-  horror: false,
-  action: false,
-  gameShow: false,
-  comedy: false,
-  history: false,
-  western: false,
-  musical: false,
-  sport: false,
-  thriller: false,
-  short: false,
-  crime: false,
-  scienceFiction: false,
-  mystery: false,
-  documentary: false,
-  netflix: false,
-  prime: false,
-  disney: false,
-  hbo: false,
-  hulu: false,
-  peacock: false,
-  paramount: false,
-  starz: false,
-  showtime: false,
-  movie: false,
-  series: false,
-}
+export default function Search(props) {
+  let allParams = {
+    biography: false,
+    music: false,
+    romance: false,
+    family: false,
+    war: false,
+    news: false,
+    reality: false,
+    talkShow: false,
+    adventure: false,
+    fantasy: false,
+    animation: false,
+    drama: false,
+    filmNoir: false,
+    horror: false,
+    action: false,
+    gameShow: false,
+    comedy: false,
+    history: false,
+    western: false,
+    musical: false,
+    sport: false,
+    thriller: false,
+    short: false,
+    crime: false,
+    scienceFiction: false,
+    mystery: false,
+    documentary: false,
+    netflix: false,
+    prime: false,
+    disney: false,
+    hbo: false,
+    hulu: false,
+    peacock: false,
+    paramount: false,
+    starz: false,
+    showtime: false,
+  }
 
-function change(property) {
-  allParams[property] = !allParams[property];
-}
+  function change(property) {
+    allParams[property] = !allParams[property];
+  }
 
-export default function Profile(props) {
+  props.paramLists.forEach((array, i) => {
+    if (array.length) {
+      array.forEach(parameter => {
+        allParams[parameter] = true;
+      })
+    }
+  });
+  
   return(
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <Text style={styles.title}>Select your favorite genres:</Text>
@@ -257,26 +263,11 @@ export default function Profile(props) {
           selected={allParams.showtime}
           onPress={ () => { props.changeParam("showtime", !allParams.showtime) ; change("showtime") } } >Showtime</Chip>
       </View>
-      <Text style={styles.title}>Movies and/or TV Shows:</Text>
-      <View style={styles.main}>
-        <Chip
-          selectedColor={"black"}
-          style={styles.selectors}
-          icon="movie" 
-          selected={allParams.movie}
-          onPress={ () => { props.changeParam("movie", !allParams.movie) ; change("movie") } } >Movies</Chip>
-        <Chip
-          selectedColor={"black"}
-          style={styles.selectors}
-          icon="television-classic" 
-          selected={allParams.series}
-          onPress={ () => { props.changeParam("series", !allParams.series) ; change("series") } } >TV Shows</Chip>
-      </View>
     </ScrollView>
   )
 }
 
-Profile.propTypes = {
+Search.propTypes = {
   changeParam: PropTypes.func,
   paramLists: PropTypes.array,
 }

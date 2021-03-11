@@ -10,12 +10,12 @@ import {
 import PropTypes from 'prop-types';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
-let currentColor = "#FF7D0D";
+let currentColor = "#EB5B49";
 
 function changeColor(color) {
   if (color === "list") {
     currentColor = "#FFBB00";
-  } else if (color === "profile") {
+  } else if (color === "search") {
     currentColor = "#EB5B49";
   } else if (color === "main") {
     currentColor = "#FF7D0D";
@@ -26,14 +26,14 @@ export default function NavBar(props) {
   return(
     <View style={[styles.buttonsRow, {backgroundColor: currentColor}]}>
       <AnimatedTouchable style={styles.buttons} onPress={() => {props.toList(); changeColor("list")}}>
-        <Image style={styles.buttonImage} source={require('./../assets/profileLogo.png')} />
+        <Image style={styles.buttonImage} source={require('./../assets/listLogo.png')} />
       </AnimatedTouchable>
 
       <AnimatedTouchable style={styles.buttons} onPress={() => {props.changeBack(); changeColor("main")}}>
         <Image style={styles.buttonImage} source={require('./../assets/filmLogo.png')} />
       </AnimatedTouchable>
 
-      <AnimatedTouchable style={styles.buttons} onPress={() => {props.toProfile(); changeColor("profile")}}>
+      <AnimatedTouchable style={styles.buttons} onPress={() => {props.toSearch(); changeColor("search")}}>
         <Image style={styles.buttonImage} source={require('./../assets/searchLogo.png')} />
       </AnimatedTouchable>
     </View>
@@ -42,7 +42,7 @@ export default function NavBar(props) {
 
 NavBar.propTypes = {
   toList: PropTypes.func,
-  toProfile: PropTypes.func,
+  toSearch: PropTypes.func,
   changeBack: PropTypes.func,
 } 
 

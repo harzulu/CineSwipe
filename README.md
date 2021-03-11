@@ -1,4 +1,5 @@
-# <div align="center">Cine Swipe</div>
+<div align="center">
+# Cine Swipe
 
 <p align="center">
     <br>
@@ -56,11 +57,18 @@ Take on a whole new past time of finding you next movie to watch! Enter in the s
 
 </details>
 
-# 📊 Diagram
-
-<img src="./assets/exampleCard.gif" width="150px" height="auto" />
-<img src="./assets/exampleLoad.gif" width="150px" height="auto" />
-<img src="./assets/exampleLikes.gif" width="150px" height="auto" />
+# 📷 Examples
+<p align="center">
+  <a>
+  <img src="./assets/exampleCard.gif" width="150px" height="auto" />
+  </a>
+  <a>
+  <img src="./assets/exampleLoad.gif" width="150px" height="auto" />
+  </a>
+  <a>
+  <img src="./assets/exampleLikes.gif" width="150px" height="auto" />
+  </a>
+</p>
 
 # 🧑‍💻 Contributers
 
@@ -138,3 +146,4 @@ Visit <a href="https://docs.google.com/document/d/1_qQ38JIwrzM6LYjI4_TNoufFSQqPG
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Copyright (c) 2021 *_Ben McFarland_*
+</div>

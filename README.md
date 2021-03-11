@@ -74,6 +74,9 @@ Take on a whole new past time of finding you next movie to watch! Enter in the s
 * <a href="https://apps.apple.com/us/app/expo-go/id982107779">Expo Go</a>
 * <a href="https://webpack.js.org/">Webpack.js</a>
 * <a href="https://nodejs.org/en/">Node.js</a>
+* <a href="https://callstack.github.io/react-native-paper/index.html">React Native Paper</a>
+* <a href="https://www.npmjs.com/package/react-native-flip-card">React Native Flip Card</a>
+* <a href="https://rapidapi.com/movie-of-the-night-movie-of-the-night-default/api/streaming-availability/details">Streaming Availability API</a>
 
 # 💾 Installation Requirements
 
@@ -103,7 +106,7 @@ Once the project has been cloned and you have all the necessary items on your lo
 
 ## Download the Expo Go app
 
-Currently the only way to use this project on mobile is through the Expo Go app with a live instance of the project going on your machine. Download the <a href="https://apps.apple.com/us/app/expo-go/id982107779">Expo Go app here</a>
+Currently the only way to use this project on mobile is through the Expo Go app with a live instance of the project going on your machine. Download the <a href="https://apps.apple.com/us/app/expo-go/id982107779">Expo Go app here (iOS)</a>
 
 ### Run the project:
 
@@ -124,7 +127,7 @@ Visit <a href="https://docs.google.com/document/d/1_qQ38JIwrzM6LYjI4_TNoufFSQqPG
 
 | Date | Error | Handled | Solution |
 | :------------- | :------------- | :------------- | :------------- |
-|  |  |  |  |
+| 3/11/21 | Have to swipe cards with two fingers to still have the tap to flip function | no | none yet |
 
 # ©️ License & Copyright
 
